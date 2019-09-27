@@ -1,7 +1,7 @@
 # CDK Test
 This is just a quick little test to see windows containers running in ECS. Its probably going to age like milk.
 
-
+Note, once deployed you will need to edit the task definition to use the <default> network mode. This option is currently not supported in the CDK. Once done you will need to also update the service to use the latest task definition. 
 # Useful commands
 
  * `npm run build`   compile typescript to js

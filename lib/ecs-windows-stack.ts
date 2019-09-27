@@ -16,7 +16,7 @@ export class EcsWindowsStack extends cdk.Stack {
     const user_data = ec2.UserData.forWindows()
     user_data.addCommands(
       "Import-Module ECSTools",
-      "Initialize-ECSAgent -Cluster 'ecs-windows' -EnableTaskIAMRole",
+      "Initialize-ECSAgent -Cluster '" + cluster.clusterName + "' -EnableTaskIAMRole",
     )
     
     const asg = new auto_scaling.AutoScalingGroup(this, "win-ecs-asg", 
@@ -45,23 +45,30 @@ export class EcsWindowsStack extends cdk.Stack {
 
     const task_definition = new ecs.Ec2TaskDefinition(this, "win-demo", 
     {
-      networkMode: ecs.NetworkMode.NONE
+      //NOTE: You must manually change the task as the cdk does not support <default> mode
+      //networkMode: ecs.NetworkMode.DEFAULT
     })
 
 
     const container = task_definition.addContainer("win-container-def",
     {
       image: ecs.ContainerImage.fromRegistry('microsoft/iis'),
-      memoryLimitMiB: 128,
+      memoryLimitMiB: 1028,
+      cpu: 512,
       entryPoint: ["powershell", "-Command"],
       command: ["New-Item -Path C:\\inetpub\\wwwroot\\index.html -ItemType file -Value '<html> <head> <title>Amazon ECS Sample App</title> <style>body {margin-top: 40px; background-color: #333;} </style> </head><body> <div style=color:white;text-align:center> <h1>Amazon ECS Sample App</h1> <h2>Congratulations!</h2> <p>Your application is now running on a container in Amazon ECS.</p>' -Force ; C:\\ServiceMonitor.exe w3svc"],
- 
     })
 
     container.addPortMappings({
       protocol: ecs.Protocol.TCP,
       containerPort: 80,
       hostPort: 8080
+    })
+
+     const ecs_service = new ecs.Ec2Service(this, "win-service",
+    {
+      cluster: cluster,
+      taskDefinition: task_definition,
     })
   }
 }
