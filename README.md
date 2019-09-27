@@ -1,3 +1,7 @@
+# CDK Test
+This is just a quick little test to see windows containers running in ECS. Its probably going to age like milk.
+
+
 # Useful commands
 
  * `npm run build`   compile typescript to js
